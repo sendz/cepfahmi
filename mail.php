@@ -11,11 +11,13 @@
     $mailHeader = imap_headerinfo($mailer,$mailID);
     $mailBody   = imap_fetchbody($mailer, $mailID, 1);
 
+    /*
     if($mailHeader->Unseen = 'U')
     {
       echo "<div>".$mailBody."</div>";
     }
-
+    */
     //echo $mailHeader->subject;
   }
-    echo $mailCount;
+    $mailUnread = imap_search($mailer,'UNSEEN');
+    echo count($mailUnread);
