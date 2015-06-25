@@ -132,7 +132,8 @@ if ($emails) {
         }
  
         if($count++ >= $max_emails) break;
-
+		 
+		
 		// Print
 		foreach ($overview as $overview)
 			{
@@ -141,15 +142,14 @@ if ($emails) {
 			echo "<h4><em>To: ".$overview->to."</em></h4>";
 			echo "<h4><em>Date: ".$overview->date."</em></h4>";
 		}
-		echo imap_qprint($message) . "<br />";
-		echo "<img src='".$attachment['name']."' alt='attachment' />";
+		echo imap_qprint(imap_utf8($message)) . "<br />";
+		if($attachment['name']) echo "<img src='./".$email_number."-".$attachment['name']."' alt='attachment' />";
+echo "<hr />";
     }
  
 } 
  
 /* close the connection */
 imap_close($inbox);
- 
-echo "<hr />";
  
 ?>
