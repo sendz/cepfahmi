@@ -125,7 +125,7 @@ if ($emails) {
                 /* prefix the email number to the filename in case two emails
                  * have the attachment with the same file name.
                  */
-                $fp = fopen($email_number . "-" . $filename, "w+");
+                $fp = fopen("./file/".$email_number . "-" . $filename, "w+");
                 fwrite($fp, $attachment['attachment']);
                 fclose($fp);
             }
