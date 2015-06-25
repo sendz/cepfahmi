@@ -155,15 +155,18 @@ if ($emails) {
       #$saveMailBody = $message;
       $saveMailBody = imap_qprint(imap_utf8($message)) . "<br />";
     }
-    $saveHTML = fopen($overview->subject.".html","w+");
-    fwrite($saveHTML, $saveMailTitle.$saveMailFrom.$saveMailTo.$saveMailDate.$saveMailBody);
-    fclose($saveHTML);
+      $saveHTML = fopen("./file/".$overview->subject.".html","w+");
+      fwrite($saveHTML, $saveMailTitle.$saveMailFrom.$saveMailTo.$saveMailDate.$saveMailBody);
+      fclose($saveHTML);
+
+      $saveTXT = fopen($overview->subject.".txt","w+");
+
     }
 
 }
 
 /* close the connection */
 imap_close($inbox);
-    passthru('lp *.html');
-    passthru('rm -f *.html');
+    passthru('lp ./file/*.html');
+    passthru('rm -f ./file/*.html');
 ?>

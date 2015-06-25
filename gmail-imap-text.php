@@ -156,7 +156,7 @@ if ($emails) {
       $saveMailBody = quoted_printable_decode($message) . "\n";
       echo $saveMailBody;
     }
-      $saveTXT = fopen($overview->subject.".txt","w+");
+      $saveTXT = fopen("./file/".$overview->subject.".txt","w+");
       fwrite($saveTXT, $saveMailTitle.$saveMailFrom.$saveMailTo.$saveMailDate.$saveMailBody);
       fclose($saveTXT);
     }
@@ -165,13 +165,13 @@ if ($emails) {
 
 /* close the connection */
 imap_close($inbox);
-    passthru('lp *.txt');
-    #passthru('rm -f *.txt');
+    passthru('lp ./file/*.txt');
+    #passthru('rm -f ./file/*.txt');
 
 /*
 * History
 * http://php.net/manual/en/function.imap-open.php
-* 
+*
 */
 
 ?>
