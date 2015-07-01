@@ -137,18 +137,24 @@ if ($emails) {
 
 
 		// Print
+
+
 		foreach ($overview as $overview)
-			{
-			$saveMailTitle = "<h1>".$overview->subject."</h1>";
+		{
+
+      $subject = $overview->subject;
+      list($filter,$printnumber,$mailtitle) = explode("|",$subject);
+			$saveMailTitle = "<h1>".$mailtitle."</h1>";
+      echo $saveMailTitle;
+
 			$saveMailFrom = "<h4><em>From: ".$overview->from."</em></h4>";
 			$saveMailTo = "<h4><em>To: ".$overview->to."</em></h4>";
 			$saveMailDate = "<h4><em>Date: ".$overview->date."</em></h4>";
-      echo $saveMailTitle;
-		}
+
 		if($attachment['name'])
     {
       #$saveMailBody = $email_number."-".$attachment['name'];
-      $saveMailBody = "<img src='./".$email_number."-".$attachment['name']."' alt='attachment' />";
+      $saveMailBody = "<img src='../file/".$email_number."-".$attachment['name']."' alt='attachment' />";
       #echo "<hr />";
     }
     else
@@ -161,26 +167,24 @@ if ($emails) {
     fwrite($saveHTML, $saveMailTitle.$saveMailFrom.$saveMailTo.$saveMailDate.$saveMailBody);
     fclose($saveHTML);*/
 
-    $subject = $overview->subject;
 
-    list($filter,$printmode,$printnumber) = explode("|",$subject);
-
-    if($printnumber=="printer1")
+    if($printnumber=="print1")
     {
-      $saveHTML = fopen("./printer1/".$overview->subject.".html","w+");
+      $saveHTML = fopen("./printer1/".$mailtitle.".html","w+");
       fwrite($saveHTML, $saveMailTitle.$saveMailFrom.$saveMailTo.$saveMailDate.$saveMailBody);
       fclose($saveHTML);
-      passthru('lp ./printer1/'.$overview->subject.'.html');
-      passthru('rm -f ./printer1*.html');
+      passthru('lp ./printer1/'.$mailtitle.'.html');
+      #passthru('rm -f ./printer1*.html');
     }
-    elseif($printnumber=="printer2")
+    elseif($printnumber=="print2")
     {
-      $saveHTML = fopen("./printer2/".$overview->subject.".html","w+");
+      $saveHTML = fopen("./printer2/".$mailtitle.".html","w+");
       fwrite($saveHTML, $saveMailTitle.$saveMailFrom.$saveMailTo.$saveMailDate.$saveMailBody);
       fclose($saveHTML);
-      passthru('lp ./printer2/'.$overview->subject.'.html');
-      passthru('rm -f ./printer2*.html');
+      passthru('lp ./printer2/'.$mailtitle.'.html');
+      #passthru('rm -f ./printer2*.html');
     }
+  }
   }
 
 }
