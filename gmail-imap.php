@@ -58,6 +58,7 @@ if ($emails) {
 
         $attachments = array();
 
+
         /* if any attachments found... */
         if(isset($structure->parts) && count($structure->parts))
         {
@@ -155,18 +156,35 @@ if ($emails) {
       #$saveMailBody = $message;
       $saveMailBody = imap_qprint(imap_utf8($message)) . "<br />";
     }
-      $saveHTML = fopen("./file/".$overview->subject.".html","w+");
+    /*
+    $saveHTML = fopen("./file/".$overview->subject.".html","w+");
+    fwrite($saveHTML, $saveMailTitle.$saveMailFrom.$saveMailTo.$saveMailDate.$saveMailBody);
+    fclose($saveHTML);*/
+
+    $subject = $overview->subject;
+
+    list($filter,$printmode,$printnumber) = explode("|",$subject);
+
+    if($printnumber=="printer1")
+    {
+      $saveHTML = fopen("./printer1/".$overview->subject.".html","w+");
       fwrite($saveHTML, $saveMailTitle.$saveMailFrom.$saveMailTo.$saveMailDate.$saveMailBody);
       fclose($saveHTML);
-
-      $saveTXT = fopen($overview->subject.".txt","w+");
-
+      passthru('lp ./printer1/'.$overview->subject.'.html');
+      passthru('rm -f ./printer1*.html');
     }
+    elseif($printnumber=="printer2")
+    {
+      $saveHTML = fopen("./printer2/".$overview->subject.".html","w+");
+      fwrite($saveHTML, $saveMailTitle.$saveMailFrom.$saveMailTo.$saveMailDate.$saveMailBody);
+      fclose($saveHTML);
+      passthru('lp ./printer2/'.$overview->subject.'.html');
+      passthru('rm -f ./printer2*.html');
+    }
+  }
 
 }
 
 /* close the connection */
 imap_close($inbox);
-    passthru('lp ./file/*.html');
-    passthru('rm -f ./file/*.html');
 ?>
