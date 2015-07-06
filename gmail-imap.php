@@ -1,6 +1,9 @@
 <?php
+
 error_reporting(E_ALL);
 ini_set('display_errors',1);
+// Buka file konfigurasi
+require("config.php");
 /**
  *	Mawa gmail attachment.
  *
@@ -10,18 +13,11 @@ ini_set('display_errors',1);
  *
  */
 
+// Set time limit eksekusi selama 30 detik, kalau gak ada respon selama 30 detik, eksekusi dibatalkan
 set_time_limit(3000);
 
-
-/* connect to gmail with your credentials */
-$hostname = '{imap.gmail.com:993/imap/ssl}INBOX';
-$username = 'fahemimran@gmail.com'; # e.g somebody@gmail.com
-$password = 'raspberrypi';
-
-
-/* try to connect */
+// Koneksi ke IMAP Server
 $inbox = imap_open($hostname,$username,$password) or die('Cannot connect to Gmail: ' . imap_last_error());
-
 
 /* get all new emails. If set to 'ALL' instead
  * of 'NEW' retrieves all the emails, but can be
@@ -29,9 +25,12 @@ $inbox = imap_open($hostname,$username,$password) or die('Cannot connect to Gmai
  * $max_emails, puts the limit on the number of emails downloaded.
  *
  */
-$emails = imap_search($inbox,'UNSEEN SUBJECT "[print]"');
+
+// Mencari email unread dengan judul print
+$emails = imap_search($inbox,'UNSEEN SUBJECT "print"');
 
 /* useful only if the above search is set to 'ALL' */
+// Maksimum email 10
 $max_emails = 10;
 
 
@@ -143,48 +142,85 @@ if ($emails) {
 		{
 
       $subject = $overview->subject;
+
+      // Memisahkan filter dengan pipeline (|)
       list($filter,$printnumber,$mailtitle) = explode("|",$subject);
-			$saveMailTitle = "<h1>".$mailtitle."</h1>";
+
+      // Judul yang akan disimpan menggunakan array ke-3 dari hasil filter
+			$saveMailTitle = $mailtitle;
       echo $saveMailTitle;
-
-			$saveMailFrom = "<h4><em>From: ".$overview->from."</em></h4>";
-			$saveMailTo = "<h4><em>To: ".$overview->to."</em></h4>";
-			$saveMailDate = "<h4><em>Date: ".$overview->date."</em></h4>";
-
-		if($attachment['name'])
-    {
-      #$saveMailBody = $email_number."-".$attachment['name'];
-      $saveMailBody = "<img src='../file/".$email_number."-".$attachment['name']."' alt='attachment' />";
-      #echo "<hr />";
-    }
-    else
-    {
-      #$saveMailBody = $message;
-      $saveMailBody = imap_qprint(imap_utf8($message)) . "<br />";
-    }
-    /*
-    $saveHTML = fopen("./file/".$overview->subject.".html","w+");
-    fwrite($saveHTML, $saveMailTitle.$saveMailFrom.$saveMailTo.$saveMailDate.$saveMailBody);
-    fclose($saveHTML);*/
-
-
-    if($printnumber=="print1")
-    {
-      $saveHTML = fopen("./printer1/".$mailtitle.".html","w+");
+			$saveMailFrom = "From: ".$overview->from."\n";
+			$saveMailTo = "To: ".$overview->to."\n";
+			$saveMailDate = "Date: ".$overview->date."\n";
+        #$saveMailBody = $message;
+        if($attachment['name'])
+        {
+          $saveMailBody = "attachment printed on separated paper";
+        }
+        else{
+          $saveMailBody = quoted_printable_decode(imap_utf8($message));
+        }
+      /*
+      $saveHTML = fopen("./file/".$overview->subject.".html","w+");
       fwrite($saveHTML, $saveMailTitle.$saveMailFrom.$saveMailTo.$saveMailDate.$saveMailBody);
-      fclose($saveHTML);
-      passthru('lp ./printer1/'.$mailtitle.'.html');
-      #passthru('rm -f ./printer1*.html');
+      fclose($saveHTML);*/
+
+
+      if($printnumber=="print1")
+      {
+        if($attachments)
+        {
+          foreach($attachments as $attachment)
+          {
+            if($attachment['name'])
+            {
+
+            #$saveMailBody = $email_number."-".$attachment['name'];
+            $tmp = "./file/".$email_number."-".$attachment['name'];
+            $dest = "./printer1/".$email_number."-".$attachment['name'];
+            copy($tmp,$dest);
+            #echo "<hr />";
+            passthru('lp ./printer1/'.$email_number."-".$attachment['name']);
+            }
+          }
+        }
+        #elseif(!$attachments)
+        #{
+          $saveHTML = fopen("./printer1/".$mailtitle.".txt","w+");
+          fwrite($saveHTML, $saveMailTitle.$saveMailFrom.$saveMailTo.$saveMailDate.$saveMailBody);
+          fclose($saveHTML);
+          passthru('lp ./printer1/'.$mailtitle.'.txt');
+        #}
+        #passthru('rm -f ./printer1/*');
+      }
+      elseif($printnumber=="print2")
+      {
+        if($attachments)
+        {
+          foreach($attachments as $attachment)
+          {
+            if($attachment['name'])
+            {
+
+            #$saveMailBody = $email_number."-".$attachment['name'];
+            $tmp = "./file/".$email_number."-".$attachment['name'];
+            $dest = "./printer2/".$email_number."-".$attachment['name'];
+            copy($tmp,$dest);
+            #echo "<hr />";
+            passthru('lp ./printer2/'.$email_number."-".$attachment['name']);
+            }
+          }
+        }
+        #elseif(!$attachments)
+        #{
+          $saveHTML = fopen("./printer2/".$mailtitle.".txt","w+");
+          fwrite($saveHTML, $saveMailTitle.$saveMailFrom.$saveMailTo.$saveMailDate.$saveMailBody);
+          fclose($saveHTML);
+          passthru('lp ./printer2/'.$mailtitle.'.txt');
+        #}
+        #passthru('rm -f ./printer2/*');
+      }
     }
-    elseif($printnumber=="print2")
-    {
-      $saveHTML = fopen("./printer2/".$mailtitle.".html","w+");
-      fwrite($saveHTML, $saveMailTitle.$saveMailFrom.$saveMailTo.$saveMailDate.$saveMailBody);
-      fclose($saveHTML);
-      passthru('lp ./printer2/'.$mailtitle.'.html');
-      #passthru('rm -f ./printer2*.html');
-    }
-  }
   }
 
 }
